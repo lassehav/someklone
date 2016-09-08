@@ -12,8 +12,12 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
 
-    var models = { user: require('./models/user.js')};
-    var userRoutes = require('./routes/users.js')(models);       
+    var models = { 
+        user: require('./models/user.js'),
+        post: require('./models/post.js')
+    };
+    var userRoutes = require('./routes/users.js')(models);
+    var postRoutes = require('./routes/posts.js')(models);       
         
     // You can store key-value pairs in express, here we store the port setting
     app.set('port', (process.env.PORT || 80));
@@ -23,6 +27,7 @@ db.once('open', function() {
 
     // Mount our routes behind /api/ prefix
     app.use('/api', userRoutes.router);
+    app.use('/api', postRoutes.router);
 
     // Simple hello world route
     app.get('/', function(req, res) {

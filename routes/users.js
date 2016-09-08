@@ -1,4 +1,5 @@
 var express = require('express');
+var Promise = require('bluebird');
 var router = express.Router();
 
 module.exports = function (models)
@@ -20,7 +21,7 @@ module.exports = function (models)
 
     function getSingleUser(req,res,next)
     {        
-        models.user.find({ _id: req.params.id }).then(function(result){
+        models.user.findById(req.params.id).then(function(result){
             res.json(result);
         });
     }
@@ -37,12 +38,33 @@ module.exports = function (models)
 
     function getUserFriends(req,res,next)
     {
+        models.user.findById(req.params.id).then(result => {
+            var queries = result.following.map(f => {
+                return models.user.findById(f);
+            });
 
+            Promise.all(queries).then(results => {
+                res.json(results);
+            });            
+        })
     }
 
     function addNewFriend(req,res,next)
     {
-
+        var queries = [
+            models.user.findById(req.params.id),
+            models.user.findById(req.body.friendId)
+        ];
+        Promise.all(queries).then(qres => {
+            console.log(qres);
+            qres[0].following.push(qres[1]._id);
+            qres[0].save().then(result => {
+                console.log("save complete");
+                console.log(result);
+                res.sendStatus(200)
+            });
+        });
+        
     }
 
     function deleteFriend(req,res,next)
