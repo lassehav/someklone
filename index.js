@@ -12,9 +12,9 @@ var storage = cloudinaryStorage({
   cloudinary: cloudinary,
   folder: 'someklone',
   allowedFormats: ['jpg', 'png'],
-  filename: function (req, file, cb) {
+/*  filename: function (req, file, cb) {
     cb(undefined, 'my-file-name');
-  }
+  }*/
 });
 
 var parser = multer({ storage: storage });
