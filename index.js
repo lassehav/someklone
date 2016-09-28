@@ -4,7 +4,6 @@ var express = require('express');
 var multer = require('multer');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-var config = require('./config.json');
 
 var app = express();
 
@@ -23,7 +22,7 @@ var parser = multer({ storage: storage });
 
 mongoose.Promise = require('bluebird');
 
-mongoose.connect(process.env.MONGODB_URI || config.mongoUri);
+mongoose.connect(process.env.MONGODB_URI || require('./config.json').mongoUri);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
