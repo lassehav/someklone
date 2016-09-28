@@ -1,9 +1,25 @@
+var cloudinary = require('cloudinary');
+var cloudinaryStorage = require('multer-storage-cloudinary');
 var express = require('express');
+var multer = require('multer');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var config = require('./config.json');
 
 var app = express();
+
+// Config cloudinary storage for multer-storage-cloudinary
+var storage = cloudinaryStorage({
+  cloudinary: cloudinary,
+  folder: 'someklone',
+  allowedFormats: ['jpg', 'png'],
+  filename: function (req, file, cb) {
+    cb(undefined, 'my-file-name');
+  }
+});
+
+var parser = multer({ storage: storage });
+
 
 mongoose.Promise = require('bluebird');
 
@@ -32,6 +48,11 @@ db.once('open', function() {
     // Simple hello world route
     app.get('/', function(req, res) {
         res.send("Hello world");
+    });
+
+    app.post('/upload', parser.single('image'), function (req, res) {
+        console.log(req.files);
+        console.log(req.file);
     });
 
     // start listening for incoming HTTP connections
