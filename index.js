@@ -52,6 +52,7 @@ db.once('open', function() {
     app.post('/upload', parser.single('image'), function (req, res) {
         console.log(req.files);
         console.log(req.file);
+        res.sendStatus(201);
     });
 
     // start listening for incoming HTTP connections
