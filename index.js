@@ -3,61 +3,73 @@ var cloudinaryStorage = require('multer-storage-cloudinary');
 var express = require('express');
 var multer = require('multer');
 var bodyParser = require('body-parser');
-var mongoose = require('mongoose');
 
+var cors = require('cors');
 var app = express();
 
-// Config cloudinary storage for multer-storage-cloudinary
-// https://github.com/affanshahid/multer-storage-cloudinary
-var storage = cloudinaryStorage({
-  cloudinary: cloudinary,
-  folder: 'someklone',
-  allowedFormats: ['jpg', 'png'],
+
+app.use(cors());
+
+// You can store key-value pairs in express, here we store the port setting
+app.set('port', (process.env.PORT || 80));
+
+// bodyParser needs to be configured for parsing JSON from HTTP body
+app.use(bodyParser.json());
+
+// Simple hello world route
+app.get('/', function(req, res, next) {
+    res.send("Hello world");
 });
 
-var parser = multer({ storage: storage });
+var posts = [
+        {
+            id: 0,
+            user: {
+                id: 1,
+                username: "dtrump",
+                profileImageSmall: "http://core0.staticworld.net/images/article/2015/11/111915blog-donald-trump-100629006-primary.idge.jpg" 
+            },                                                 
+            image: "http://media1.fdncms.com/sacurrent/imager/u/original/2513252/donald_trump4.jpg",
+            imageThumbnail: "http://media1.fdncms.com/sacurrent/imager/u/original/2513252/donald_trump4.jpg",
+            likes: 892,
+            userLike: true,
+            caption: "Always winning #elections",
+            tags: ['elections'],         
+            comments: [
+                {
+                    id: 0,
+                    user: {
+                        id: 2,
+                        username: "POTUS",
+                        profileImageSmall: "http://core0.staticworld.net/images/article/2015/11/111915blog-donald-trump-100629006-primary.idge.jpg"
+                    },                    
+                    text: "You're never going to make it don #losing",
+                    userRefs: [],
+                    tags: ["losing"]
+                },
+                {
+                    id: 1,
+                    user: {
+                        id: 3,
+                        username: "HillaryC",
+                        profileImageSmall: "http://core0.staticworld.net/images/article/2015/11/111915blog-donald-trump-100629006-primary.idge.jpg"
+                    },                    
+                    text: "Damn right @POTUS",
+                    userRefs: ["POTUS"],
+                    tags: []       
+                }                                               
+            ]
+        }
+    ]
 
-
-mongoose.Promise = require('bluebird');
-
-mongoose.connect(process.env.MONGODB_URI || require('./config.json').mongoUri);
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
-
-    var models = { 
-        user: require('./models/user.js'),
-        post: require('./models/post.js')
-    };
-    var userRoutes = require('./routes/users.js')(models);
-    var postRoutes = require('./routes/posts.js')(models);       
-        
-    // You can store key-value pairs in express, here we store the port setting
-    app.set('port', (process.env.PORT || 80));
-
-    // bodyParser needs to be configured for parsing JSON from HTTP body
-    app.use(bodyParser.json());
-
-    // Mount our routes behind /api/ prefix
-    app.use('/api', userRoutes.router);
-    app.use('/api', postRoutes.router);
-
-    // Simple hello world route
-    app.get('/', function(req, res) {
-        res.send("Hello world");
-    });
-
-    // Create the upload route for image uploading
-    // The .single method is documented here https://github.com/expressjs/multer#singlefieldname    
-    app.post('/upload', parser.single('image'), function (req, res) {        
-        console.log(req.file);
-        res.sendStatus(201);
-    });
-
-    // start listening for incoming HTTP connections
-    app.listen(app.get('port'), function() {
-        console.log('Node app is running on port', app.get('port'));
-    });
+app.get('/posts', function(req, res, next){
+    res.json(posts);
 });
+
+// start listening for incoming HTTP connections
+app.listen(app.get('port'), function() {
+    console.log('Node app is running on port', app.get('port'));
+});
+
 
 

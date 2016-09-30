@@ -17,12 +17,8 @@
   },
   "homepage": "https://github.com/lassehav/someklone#readme",
   "dependencies": {
-    "bluebird": "^3.4.6",
     "body-parser": "^1.15.2",
-    "cloudinary": "^1.4.1",
-    "express": "^4.14.0",
-    "mongoose": "^4.6.0",
-    "multer": "^1.2.0",
-    "multer-storage-cloudinary": "^1.2.1"
+    "cors": "^2.8.1",
+    "express": "^4.14.0"
   }
 }
