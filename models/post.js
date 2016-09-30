@@ -4,7 +4,7 @@ module.exports = function(sequelize, DataTypes) {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true},
     image: DataTypes.STRING,    
     imageThumbnail: DataTypes.STRING,
-    likes: { DataTypes.INTEGER, defaultValue: 0 },
+    likes: { type: DataTypes.INTEGER, defaultValue: 0 },
     caption: DataTypes.STRING    
   }, {
     classMethods: {
