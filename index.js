@@ -8,13 +8,11 @@ var mongoose = require('mongoose');
 var app = express();
 
 // Config cloudinary storage for multer-storage-cloudinary
+// https://github.com/affanshahid/multer-storage-cloudinary
 var storage = cloudinaryStorage({
   cloudinary: cloudinary,
   folder: 'someklone',
   allowedFormats: ['jpg', 'png'],
-/*  filename: function (req, file, cb) {
-    cb(undefined, 'my-file-name');
-  }*/
 });
 
 var parser = multer({ storage: storage });
@@ -49,8 +47,9 @@ db.once('open', function() {
         res.send("Hello world");
     });
 
-    app.post('/upload', parser.single('image'), function (req, res) {
-        console.log(req.files);
+    // Create the upload route for image uploading
+    // The .single method is documented here https://github.com/expressjs/multer#singlefieldname    
+    app.post('/upload', parser.single('image'), function (req, res) {        
         console.log(req.file);
         res.sendStatus(201);
     });
