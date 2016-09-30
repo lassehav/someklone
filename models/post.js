@@ -1,7 +1,7 @@
 'use strict';
 module.exports = function(sequelize, DataTypes) {
   var Post = sequelize.define('Post', {
-    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true},
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     image: DataTypes.STRING,    
     imageThumbnail: DataTypes.STRING,
     likes: { type: DataTypes.INTEGER, defaultValue: 0 },
