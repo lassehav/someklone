@@ -1,10 +1,7 @@
-var cloudinary = require('cloudinary');
-var cloudinaryStorage = require('multer-storage-cloudinary');
 var express = require('express');
-var multer = require('multer');
 var bodyParser = require('body-parser');
-
 var cors = require('cors');
+var models = require('./models');
 var app = express();
 
 
@@ -20,7 +17,7 @@ app.use(bodyParser.json());
 app.get('/', function(req, res, next) {
     res.send("Hello world");
 });
-
+/*
 var posts = [
         {
             id: 0,
@@ -61,15 +58,57 @@ var posts = [
             ]
         }
     ]
-
-app.get('/posts', function(req, res, next){
-    res.json(posts);
+*/
+app.get('/posts', function(req, res, next){    
+    models.Posts.findAll().then(function(s) {
+        res.json(s);
+    }); 
 });
 
-// start listening for incoming HTTP connections
-app.listen(app.get('port'), function() {
-    console.log('Node app is running on port', app.get('port'));
+app.get('/posts/:id', function(req, res, next){    
+    models.Posts.findById(req.params.id).then(function(s) {
+        res.json(s);
+    }); 
 });
 
+app.get('/posts/user/:userId', function(req, res, next){    
+    models.User.findById(req.params.userId)
+    .getUserPosts()
+    .then(function(s) {
+        res.json(s);
+    }); 
+})
+
+app.post('/users', function(req,res,next){
+    models.User.create({
+        username: "Test",
+        profileImageSmall: "http://core0.staticworld.net/images/article/2015/11/111915blog-donald-trump-100629006-primary.idge.jpg"    
+    }).then(function(i) {
+        res.json({
+            id: i.dataValues.id
+        });        
+    });
+});
+
+app.post('/posts', function(req,res,next){
+    models.Post.create({
+        image: "https://lh4.ggpht.com/wKrDLLmmxjfRG2-E-k5L5BUuHWpCOe4lWRF7oVs1Gzdn5e5yvr8fj-ORTlBF43U47yI=w300",        
+        imageThumbnail: "https://lh4.ggpht.com/wKrDLLmmxjfRG2-E-k5L5BUuHWpCOe4lWRF7oVs1Gzdn5e5yvr8fj-ORTlBF43U47yI=w300",        
+        caption: "Jelloo"    
+    }).then(function(i) {
+        res.json({
+            id: i.dataValues.id
+        });        
+    });
+});
+
+
+
+
+models.sequelize.sync().then(function() {
+    app.listen(app.get('port'), function() {
+        console.log('Node app is running on port', app.get('port'));
+    });
+});
 
 
