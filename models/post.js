@@ -10,7 +10,8 @@ module.exports = function(sequelize, DataTypes) {
 
         Post.belongsTo(models.User);
 
-        Post.belongsToMany(models.User, {through: 'UserPostLikes', as: 'Likes'});      
+        Post.belongsToMany(models.User, {through: 'UserPostLikes', as: 'Likes'});
+        Post.hasMany(models.Comment);
       }
     }
   });

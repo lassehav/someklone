@@ -3,19 +3,8 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var models = require('./models');
-//var multer = require('multer');
-var cloudinary = require('cloudinary');
-//var cloudinaryStorage = require('multer-storage-cloudinary');
 var app = express();
 
-// Config cloudinary storage for multer-storage-cloudinary
-/*var storage = cloudinaryStorage({
-  cloudinary: cloudinary,
-  folder: '', // give cloudinary folder where you want to store images
-  allowedFormats: ['jpg', 'png'],
-});*/
-
-//var uploadParser = multer({ storage: storage });
 
 var userRoutes = require('./routes/user')(models);
 var postRoutes = require('./routes/post')(models);
@@ -33,16 +22,11 @@ app.get('/', function(req, res, next) {
     res.send("Hello world");
 });
 
-
-
 app.use('/users', userRoutes.router);
 app.use('/posts', postRoutes.router);
 
 
 /*
-
-
-
 
 app.get('/posts/user/:userId', function(req, res, next){    
     models.User.findById(req.params.userId)
@@ -115,7 +99,7 @@ app.get('/posts/:postId/likes/count',function(req,res,next){
 */
 
 
-models.sequelize.sync({force: true}).then(function() {
+models.sequelize.sync().then(function() {
     app.listen(app.get('port'), function() {
         console.log('Node app is running on port', app.get('port'));
     });
