@@ -71,8 +71,8 @@ module.exports = function(models)
                         }
 
                         u.createPost({
-                            image: cloudinaryResult.url,        
-                            imageThumbnail: "thumbtest",        
+                            image: cloudinary.url(cloudinaryResult.public_id, { width: 800, height: 600, crop: 'fill' } ),        
+                            imageThumbnail: cloudinary.url(cloudinaryResult.public_id, { width: 150, height: 100, crop: 'fill' } ),        
                             caption: req.body.caption })        
                         .then(function(p) { 
                             p.dataValues.user = u;           
