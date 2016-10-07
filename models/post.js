@@ -1,17 +1,16 @@
 'use strict';
 module.exports = function(sequelize, DataTypes) {
   var Post = sequelize.define('Post', {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     image: DataTypes.STRING,    
-    imageThumbnail: DataTypes.STRING,
-    likes: { type: DataTypes.INTEGER, defaultValue: 0 },
+    imageThumbnail: DataTypes.STRING,    
     caption: DataTypes.STRING    
   }, {
     classMethods: {
       associate: function(models) {
-        // associations can be defined here
-        Post.hasOne(models.User, {as: 'Owner'});
-        Post.hasMany(models.User, {as: 'Likes'});        
+
+        Post.belongsTo(models.User);
+
+        Post.belongsToMany(models.User, {through: 'UserPostLikes', as: 'Likes'});      
       }
     }
   });

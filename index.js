@@ -1,9 +1,24 @@
+var Promise = require("bluebird");
 var express = require('express');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var models = require('./models');
+//var multer = require('multer');
+var cloudinary = require('cloudinary');
+//var cloudinaryStorage = require('multer-storage-cloudinary');
 var app = express();
 
+// Config cloudinary storage for multer-storage-cloudinary
+/*var storage = cloudinaryStorage({
+  cloudinary: cloudinary,
+  folder: '', // give cloudinary folder where you want to store images
+  allowedFormats: ['jpg', 'png'],
+});*/
+
+//var uploadParser = multer({ storage: storage });
+
+var userRoutes = require('./routes/user')(models);
+var postRoutes = require('./routes/post')(models);
 
 app.use(cors());
 
@@ -17,59 +32,17 @@ app.use(bodyParser.json());
 app.get('/', function(req, res, next) {
     res.send("Hello world");
 });
-/*
-var posts = [
-        {
-            id: 0,
-            user: {
-                id: 1,
-                username: "dtrump",
-                profileImageSmall: "http://core0.staticworld.net/images/article/2015/11/111915blog-donald-trump-100629006-primary.idge.jpg" 
-            },                                                 
-            image: "http://media1.fdncms.com/sacurrent/imager/u/original/2513252/donald_trump4.jpg",
-            imageThumbnail: "http://media1.fdncms.com/sacurrent/imager/u/original/2513252/donald_trump4.jpg",
-            likes: 892,
-            userLike: true,
-            caption: "Always winning #elections",
-            tags: ['elections'],         
-            comments: [
-                {
-                    id: 0,
-                    user: {
-                        id: 2,
-                        username: "POTUS",
-                        profileImageSmall: "http://core0.staticworld.net/images/article/2015/11/111915blog-donald-trump-100629006-primary.idge.jpg"
-                    },                    
-                    text: "You're never going to make it don #losing",
-                    userRefs: [],
-                    tags: ["losing"]
-                },
-                {
-                    id: 1,
-                    user: {
-                        id: 3,
-                        username: "HillaryC",
-                        profileImageSmall: "http://core0.staticworld.net/images/article/2015/11/111915blog-donald-trump-100629006-primary.idge.jpg"
-                    },                    
-                    text: "Damn right @POTUS",
-                    userRefs: ["POTUS"],
-                    tags: []       
-                }                                               
-            ]
-        }
-    ]
-*/
-app.get('/posts', function(req, res, next){    
-    models.Posts.findAll().then(function(s) {
-        res.json(s);
-    }); 
-});
 
-app.get('/posts/:id', function(req, res, next){    
-    models.Posts.findById(req.params.id).then(function(s) {
-        res.json(s);
-    }); 
-});
+
+
+app.use('/users', userRoutes.router);
+app.use('/posts', postRoutes.router);
+
+
+/*
+
+
+
 
 app.get('/posts/user/:userId', function(req, res, next){    
     models.User.findById(req.params.userId)
@@ -90,25 +63,61 @@ app.post('/users', function(req,res,next){
     });
 });
 
+app.get('/users', function(req,res,next){
+    models.User.findAll().then(function(u){
+        res.json(u);
+    })
+});
+
 app.post('/posts', function(req,res,next){
-    models.Post.create({
-        image: "https://lh4.ggpht.com/wKrDLLmmxjfRG2-E-k5L5BUuHWpCOe4lWRF7oVs1Gzdn5e5yvr8fj-ORTlBF43U47yI=w300",        
-        imageThumbnail: "https://lh4.ggpht.com/wKrDLLmmxjfRG2-E-k5L5BUuHWpCOe4lWRF7oVs1Gzdn5e5yvr8fj-ORTlBF43U47yI=w300",        
-        caption: "Jelloo"    
-    }).then(function(i) {
-        res.json({
-            id: i.dataValues.id
-        });        
-    });
+    models.User.findById(1).then(function(u){
+        u.createPost({
+            image: "https://lh4.ggpht.com/wKrDLLmmxjfRG2-E-k5L5BUuHWpCOe4lWRF7oVs1Gzdn5e5yvr8fj-ORTlBF43U47yI=w300",        
+            imageThumbnail: "https://lh4.ggpht.com/wKrDLLmmxjfRG2-E-k5L5BUuHWpCOe4lWRF7oVs1Gzdn5e5yvr8fj-ORTlBF43U47yI=w300",        
+            caption: "Jelloo"})        
+        .then(function(p) { 
+            p.dataValues.User = u;           
+            res.json(p);                                
+        });       
+    });    
+});
+
+app.post('/posts/:postId/likes/:userId', function(req,res,next){
+    Promise.all([
+        models.User.findById(req.params.userId),
+        models.Post.findById(req.params.postId)
+    ]).then(function(results){
+        var u = results[0];
+        var p = results[1];
+
+        p.addLike(u).then(function(likeRes){
+            res.json(likeRes);
+        })
+        .catch(function(err){
+            console.log(err);
+            res.sendStatus(500);
+        });
+        
+    })
+});
+
+app.get('/posts/:postId/likes/count',function(req,res,next){
+
+    models.Post.findById(req.params.postId).then(function(post){
+        post.countLikes().then(function(l){
+            res.json(l);
+        });
+        
+    });    
 });
 
 
+*/
 
 
-models.sequelize.sync().then(function() {
+models.sequelize.sync({force: true}).then(function() {
     app.listen(app.get('port'), function() {
         console.log('Node app is running on port', app.get('port'));
     });
 });
-
 
