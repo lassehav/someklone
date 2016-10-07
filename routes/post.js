@@ -53,7 +53,12 @@ module.exports = function(models)
 {
     router.route('/')
         .get(function(req,res){
-            models.Post.findAll({include: [models.User]}).then(function(s) {
+            models.Post.findAll({
+                                    include: [models.User],
+                                    order: [
+                                        ['createdAt', 'DESC']
+                                    ]
+                                }).then(function(s) {
                 res.json(s);
             });
         })
