@@ -65,7 +65,8 @@ module.exports = function(models)
                     return post.countLikes();
                 })).then(function(likes){
                     var postsWithLikes = posts.map(function(post, index){
-                        post.likes = likes[index];
+                        post.dataValues.likes = likes[index];
+                        return post;
                     });
 
                     res.json(postsWithLikes);
