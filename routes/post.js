@@ -209,6 +209,15 @@ module.exports = function(models)
                 });                
             })
         });
+    
+    router.route('/user/:userId')
+        .get(function(req, res, next){
+            models.Post.findAll({ where: { UserId: req.params.userId }}).then(function(posts) {
+                res.json(posts);
+            }).catch(function(){
+                res.sendStatus(400)
+            }); 
+        });
 
     return { router: router }
 }
