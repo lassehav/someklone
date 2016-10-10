@@ -31,7 +31,7 @@ module.exports = function(models)
                         {
                             if(u.password === hash)
                             {
-                                res.json({ id: u.id });
+                                res.json(u);
                             }   
                             else
                             {
