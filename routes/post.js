@@ -56,7 +56,19 @@ module.exports = function(models)
     router.route('/')
         .get(function(req,res){
             models.Post.findAll({
-                include: [models.User],
+                include: [ 
+                            { 
+                                model: models.User,
+                                attributes: ['id','username','profileImageSmall']
+                            },
+                            { 
+                                model: models.Comment, 
+                                include: {
+                                            model: models.User,
+                                            attributes: ['id','username','profileImageSmall']
+                                            }
+                            }
+                        ],
                 order: [
                     ['createdAt', 'DESC']
                 ]
