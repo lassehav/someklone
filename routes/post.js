@@ -171,5 +171,44 @@ module.exports = function(models)
             });
         });
 
+    router.route('/:postId/like')
+        .post(function(req,res){
+            Promise.all([
+                models.User.findById(req.body.likerUserId),
+                models.Post.findById(req.params.postId)
+            ]).then(function(results){
+                var u = results[0];
+                var p = results[1];
+
+                p.addLike(u).then(function(likeRes){
+                    res.json(likeRes);
+                })
+                .catch(function(err){
+                    console.log(err);
+                    res.sendStatus(500);
+                });                
+            })
+        });
+    
+    router.route('/:postId/unlike')
+        .post(function(req,res){
+            Promise.all([
+                models.User.findById(req.body.likerUserId),
+                models.Post.findById(req.params.postId)
+            ]).then(function(results){
+                var u = results[0];
+                var p = results[1];
+
+                p.removeLike(u).then(function(likeRes){
+                    
+                    res.json(likeRes);
+                })
+                .catch(function(err){
+                    console.log(err);
+                    res.sendStatus(500);
+                });                
+            })
+        });
+
     return { router: router }
 }
