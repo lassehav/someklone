@@ -98,6 +98,12 @@ app.get('/posts/:postId/likes/count',function(req,res,next){
 
 */
 
+/* Seeding */
+models.User.create({
+                    username: "testoman",
+                    password: "psfsf",
+                    salt: "",
+                    profileImageSmall: ""  }).then(function(){
 
 //models.sequelize.sync({force: true}).then(function() {
 models.sequelize.sync().then(function() {
@@ -105,4 +111,8 @@ models.sequelize.sync().then(function() {
         console.log('Node app is running on port', app.get('port'));
     });
 });
+
+                    });
+
+
 
