@@ -118,7 +118,6 @@ module.exports = function(models)
             }
             else
             {
-                //res.sendStatus(400);
                 // For development allow post creation without image
                 models.User.findById(req.body.userId).then(function(u){
                     if(u===null)

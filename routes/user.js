@@ -1,5 +1,9 @@
 var express = require('express');
 var bcrypt = require('bcryptjs');
+var cloudinary = require('cloudinary');
+var fs = require('fs');
+var multer  = require('multer');
+var upload = multer({ dest: 'uploads/' });
 var router = express.Router();
 
 module.exports = function(models)
@@ -102,7 +106,7 @@ module.exports = function(models)
                 }).catch(function(){
                      res.sendStatus(500);
                 });                       
-        }); 
+        });
 
     router.route('/:userId')
         .get(function(req,res){
@@ -113,6 +117,39 @@ module.exports = function(models)
                             profileImageSmall: u.profileImageSmall
                          });
             }); 
+        });
+
+    router.route('/:userId/photo')
+        .post(upload.single('image'), function(req, res, next) {
+        
+            if(req.file != undefined)
+            {
+                cloudinary.uploader.upload(req.file.path, function(cloudinaryResult) { 
+                    models.User.findById(req.params.userId).then(function(u){
+                        if(u===null)
+                        {
+                            res.sendStatus(400);
+                            return;
+                        }
+
+                        fs.unlink(req.file.path, function(err) {
+                            if (err)
+                            {
+                                console.log("file deletion error " + err);
+                            };                            
+                        });
+
+                        u.set('profileImageSmall', cloudinary.url(cloudinaryResult.public_id, { width: 50, height: 50, crop: 'fill' }));
+                        u.save().then(function(u) {                                   
+                            res.json(u);
+                        });                    
+                    });
+                })                                
+            }
+            else
+            {
+                res.sendStatus(400);
+            }                                
         });        
 
     return {
