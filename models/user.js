@@ -6,7 +6,8 @@ module.exports = function(sequelize, DataTypes) {
     salt: DataTypes.STRING,
     profileImageSmall: DataTypes.STRING,
     
-  }, {
+  }, 
+  {
     classMethods: {
       associate: function(models) {
         User.hasMany(models.Post);
@@ -23,6 +24,7 @@ module.exports = function(sequelize, DataTypes) {
         return values;
       }  
     }
+    
   });
   
   return User;

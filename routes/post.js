@@ -105,13 +105,44 @@ module.exports = function(models)
             }
             else
             {
-                res.sendStatus(400);
+                //res.sendStatus(400);
+                // For development allow post creation without image
+                models.User.findById(req.body.userId).then(function(u){
+                    if(u===null)
+                    {
+                        res.sendStatus(400);
+                        return;
+                    }
+                            
+                    u.createPost({
+                        image: "",
+                        imageThumbnail: "",        
+                        caption: req.body.caption })        
+                    .then(function(p) { 
+                        p.dataValues.user = u;           
+                        res.json(p);                                
+                    });
+                });
             }                                
         });
     
     router.route('/:postId')
         .get(function(req, res, next){    
-            models.Post.findById(req.params.postId).then(function(s) {
+            models.Post.findById(req.params.postId,
+                                 { include: [ 
+                                                { 
+                                                    model: models.User,
+                                                    attributes: ['id','username','profileImageSmall']
+                                                },
+                                                { 
+                                                    model: models.Comment, 
+                                                    include: {
+                                                                model: models.User,
+                                                                attributes: ['id','username','profileImageSmall']
+                                                             }
+                                                }
+                                            ] 
+                                  }).then(function(s) {
                 res.json(s);
             }); 
         });
@@ -119,16 +150,11 @@ module.exports = function(models)
     router.route('/:postId/comment')
         .post(function(req,res){
             models.Comment.create({
-                userId: req.body.userId,
+                UserId: req.body.userId,
                 text: req.body.comment,
-                postId: req.params.postId
+                PostId: req.params.postId
             }).then(function(comment) {
-                Promise.all([
-                    comment.setUser(req.body.userId),
-                    comment.setPost(req.params.postId)
-                ]).then(function(results){
-                    res.json(results);
-                });                             
+                res.json(comment);                                      
             });
         });
 
