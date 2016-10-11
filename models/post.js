@@ -9,7 +9,6 @@ module.exports = function(sequelize, DataTypes) {
       associate: function(models) {
 
         Post.belongsTo(models.User);
-
         Post.belongsToMany(models.User, {through: 'UserPostLikes', as: 'Likes'});
         Post.hasMany(models.Comment);
       }

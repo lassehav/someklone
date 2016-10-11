@@ -53,7 +53,7 @@ var posts = [
 
 module.exports = function(models)
 {
-    router.route('/')
+    router.route('/') // Get all posts
         .get(function(req,res){
             models.Post.findAll({
                 include: [ 
@@ -83,10 +83,13 @@ module.exports = function(models)
 
                     res.json(postsWithLikes);
                 })                                
+            }).catch(function(err){
+                console.log(err);
+                res.sendStatus(500);
             });
         })
         
-        .post(upload.single('image'), function(req, res, next) {
+        .post(upload.single('image'), function(req, res, next) { // new post upload with image
         
             if(req.file != undefined)
             {
@@ -105,6 +108,7 @@ module.exports = function(models)
                             };                            
                         });
 
+                        // store the post to db
                         u.createPost({
                             image: cloudinary.url(cloudinaryResult.public_id, { width: 800, height: 600, crop: 'fill' } ),        
                             imageThumbnail: cloudinary.url(cloudinaryResult.public_id, { width: 150, height: 100, crop: 'fill' } ),        
@@ -112,6 +116,9 @@ module.exports = function(models)
                         .then(function(p) { 
                             p.dataValues.user = u;           
                             res.json(p);                                
+                        }).catch(function(err){
+                            console.log(err);
+                            res.sendStatus(500);
                         });                    
                     });
                 })                                
@@ -133,45 +140,51 @@ module.exports = function(models)
                     .then(function(p) { 
                         p.dataValues.user = u;           
                         res.json(p);                                
+                    }).catch(function(err){
+                        console.log(err);
+                        res.sendStatus(500);
                     });
                 });
             }                                
         });
     
     router.route('/:postId')
-        .get(function(req, res, next){    
+        .get(function(req, res, next){ // get single post    
             models.Post.findById(req.params.postId,
-                                 { include: [ 
-                                                { 
-                                                    model: models.User,
-                                                    attributes: ['id','username','profileImageSmall']
-                                                },
-                                                { 
-                                                    model: models.Comment, 
-                                                    include: {
-                                                                model: models.User,
-                                                                attributes: ['id','username','profileImageSmall']
-                                                             }
-                                                }
-                                            ] 
-                                  }).then(function(s) {
-                res.json(s);
-            }); 
+                                { include: [ 
+                                            { 
+                                                model: models.User,
+                                                attributes: ['id','username','profileImageSmall']
+                                            },
+                                            { 
+                                                model: models.Comment, 
+                                                include: {
+                                                            model: models.User,
+                                                            attributes: ['id','username','profileImageSmall']
+                                            }
+                                        }
+                                    ] 
+                                }).then(function(s) {
+                                    res.json(s);
+                                }); 
         });
     
     router.route('/:postId/comment')
-        .post(function(req,res){
+        .post(function(req,res){ // Add comment to a post
             models.Comment.create({
                 UserId: req.body.userId,
                 text: req.body.comment,
                 PostId: req.params.postId
             }).then(function(comment) {
                 res.json(comment);                                      
+            }).catch(function(err){
+                console.log(err);
+                res.sendStatus(500);
             });
         });
 
     router.route('/:postId/like')
-        .post(function(req,res){
+        .post(function(req,res){ // add a like to a post
             Promise.all([
                 models.User.findById(req.body.likerUserId),
                 models.Post.findById(req.params.postId)
@@ -181,8 +194,7 @@ module.exports = function(models)
 
                 p.addLike(u).then(function(likeRes){
                     res.json(likeRes);
-                })
-                .catch(function(err){
+                }).catch(function(err){
                     console.log(err);
                     res.sendStatus(500);
                 });                
@@ -190,7 +202,7 @@ module.exports = function(models)
         });
     
     router.route('/:postId/unlike')
-        .post(function(req,res){
+        .post(function(req,res){ // remove a like from a post
             Promise.all([
                 models.User.findById(req.body.likerUserId),
                 models.Post.findById(req.params.postId)
@@ -198,11 +210,9 @@ module.exports = function(models)
                 var u = results[0];
                 var p = results[1];
 
-                p.removeLike(u).then(function(likeRes){
-                    
+                p.removeLike(u).then(function(likeRes){                    
                     res.json(likeRes);
-                })
-                .catch(function(err){
+                }).catch(function(err){
                     console.log(err);
                     res.sendStatus(500);
                 });                
@@ -210,7 +220,7 @@ module.exports = function(models)
         });
     
     router.route('/user/:userId')
-        .get(function(req, res, next){
+        .get(function(req, res, next){  // get posts of a single user
             models.Post.findAll({ where: { UserId: req.params.userId }}).then(function(posts) {
                 res.json(posts);
             }).catch(function(){
